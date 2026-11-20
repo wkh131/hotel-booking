@@ -183,7 +183,7 @@ message Partner {
   string name = 1 [(google.api.field_behavior) = IDENTIFIER];
 
   // The official name that the partner is registered under.
-  string title = 2 [(google.api.field_behavior) = REQUIRED];
+  string title = 2;
 
   // The postal address of the partner.
   google.type.PostalAddress postal_address = 3;

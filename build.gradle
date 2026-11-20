@@ -1,42 +1,48 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '4.1.2'
-	id 'io.spring.dependency-management' version '1.1.7'
-	id 'com.google.protobuf' version '0.9.6'
+    id 'java'
+    id 'org.springframework.boot' version '4.1.2'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.google.protobuf' version '0.9.6'
 }
 
 group = 'com.github.wkh131'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(25)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-grpc-server'
-	//implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-grpc-server'
+    //implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-grpc-server-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    compileOnly("org.projectlombok:lombok:1.18.48")
+    annotationProcessor("org.projectlombok:lombok:1.18.48")
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-grpc-server-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    testCompileOnly("org.projectlombok:lombok:1.18.48")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.48")
 }
 
 protobuf {
-	plugins {
-		grpc {
-		}
-	}
+    plugins {
+        grpc {
+        }
+    }
 }
 
 test {
-	useJUnitPlatform()
+    useJUnitPlatform()
 
-	testLogging {
-		events "passed", "skipped", "failed"
-	}
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
