@@ -20,16 +20,31 @@ option java_outer_classname = "ListingServiceProto";
 // SERVICE DEFINITIONS
 // ============================================================
 
-// Provides listing capabilities for users (mainly partners) to list
-// and manage properties.
+// Provides listing capabilities for partners to list and manage
+// their properties.
+//
+// Also provides searching functionality for users to search for
+// hotels that can accommodate them.
 service ListingService {
 
   // ==========================================================
+
+  // Gets a partner.
+  rpc GetPartner(GetPartnerRequest) returns (Partner) {}
 
   // Creates a partner that can list hotels under their name.
   //
   // The partner must be authorized before they can start listing.
   rpc CreatePartner(CreatePartnerRequest) returns (Partner) {}
+
+  // Updates a partner.
+  rpc UpdatePartner(UpdatePartnerRequest) returns (Partner) {}
+
+  // Deletes a partner.
+  //
+  // There MUST NOT be any current or upcoming bookings for any hotel registered
+  // to this partner.
+  rpc DeletePartner(DeletePartnerRequest) returns (google.protobuf.Empty) {}
 
   // ==========================================================
 
@@ -102,7 +117,9 @@ service ListingService {
   // Deletes an amenity.
   //
   // This will update all hotels referencing this amenity to remove it.
-  // TODO: do the above? This is because of the many-to-many relation with hotels
+  /** TODO: do the above? This is because of the many-to-many relation with hotels
+        Actually don't need to do that because these are just responses. With the
+        normalized data in the db, we only need to delete it in one place. */
   rpc DeleteAmenity(DeleteAmenityRequest) returns (google.protobuf.Empty) {}
 
   // ==========================================================
@@ -121,17 +138,6 @@ service ListingService {
 
   // Deletes a photo under a given hotel.
   rpc DeletePhoto(DeletePhotoRequest) returns (google.protobuf.Empty) {}
-
-  // ==========================================================
-
-  // Gets the rating for a given hotel.
-  //
-  // SINGLETON: The rating is created and deleted when the hotel
-  // is created and deleted, respectively.
-  rpc GetHotelRating(GetHotelRatingRequest) returns (HotelRating) {}
-
-  // Updates the rating for a given hotel.
-  rpc UpdateHotelRating(UpdateHotelRatingRequest) returns (HotelRating) {}
 
   // ==========================================================
 
@@ -206,7 +212,7 @@ message Hotel {
   // TODO: Dont this etag is needed because just do last write wins. it's still correct
 
   // The official name that this hotel is registered under.
-  string title = 2 [(google.api.field_behavior) = REQUIRED];
+  string title = 2;
 
   // The postal address of the hotel.
   google.type.PostalAddress  postal_address = 3;
@@ -221,6 +227,9 @@ message Hotel {
   repeated string amenities = 6 [(google.api.resource_reference) = {
     type: "listing.hotelbooking.wkh131.github.com/Amenity"
   }];
+
+  // The rating of the hotel
+  HotelRating rating = 7;
 }
 
 // A set of rooms grouped under a type for a specific hotel.
@@ -374,6 +383,16 @@ message HotelPolicy {
 // RPC REQUEST AND RESPONSE MESSAGE DEFINITIONS
 // ============================================================
 
+// Request message for the GetPartner RPC.
+message GetPartnerRequest {
+  // The resource name of the partner resource to retrieve.
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "listing.hotelbooking.wkh131.github.com/Partner"
+    }];
+}
+
 // Request message for the CreatePartner RPC.
 message CreatePartnerRequest {
   // The ID to use for the partner, which will become the final component of
@@ -385,6 +404,30 @@ message CreatePartnerRequest {
 
   // The partner to create.
   Partner partner = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Request message for the UpdatePartner RPC.
+message UpdatePartnerRequest {
+  // The value to override the partner to.
+  Partner partner = 1 [(google.api.field_behavior) = REQUIRED];
+
+  /* TODO: If this is same as PUT, then doesn't that break forward compat? or is
+      it backwards compat? anyway, when old client updates, it will remove fields written by
+       new code !!!! */
+}
+
+// Request message for the DeletePartner RPC.
+message DeletePartnerRequest {
+  // The resource name of the partner resource to delete.
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "listing.hotelbooking.wkh131.github.com/Partner"
+    }];
+
+  // If set to true, all child resources will also be deleted.
+  // Otherwise, the request will only work if it has no child resources.
+  bool force = 2;
 }
 
 // Request message for the GetHotel RPC.
@@ -759,22 +802,6 @@ message DeletePhotoRequest {
     (google.api.resource_reference) = {
       type: "listing.hotelbooking.wkh131.github.com/Photo"
     }];
-}
-
-// Request message for the GetHotelRating RPC.
-message GetHotelRatingRequest {
-  // The resource name of the hotel rating resource to get.
-  string name = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference) = {
-      type: "listing.hotelbooking.wkh131.github.com/HotelRating"
-    }];
-}
-
-// Request message for the UpdateHotelRating RPC.
-message UpdateHotelRatingRequest {
-  // The value that will override the hotelRating.
-  HotelRating hotel_rating = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // Request message for the GetPolicyType RPC.

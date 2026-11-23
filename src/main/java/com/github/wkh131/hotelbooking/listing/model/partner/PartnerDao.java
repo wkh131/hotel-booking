@@ -1,4 +1,4 @@
-package com.github.wkh131.hotelbooking.listing.partner;
+package com.github.wkh131.hotelbooking.listing.model.partner;
 
 /**
  * Data-Access-Object for {@link Partner}.
