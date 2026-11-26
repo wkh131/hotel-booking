@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package wkh131.hotelbooking.search.v1;
+
+option java_package = "com.github.wkh131.hotelbooking.search.v1";
+option java_multiple_files = true;
+option java_outer_classname = "SearchServiceProto";
+
+service SearchService {
+
+}

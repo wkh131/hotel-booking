@@ -43,7 +43,8 @@ service ListingService {
   // Deletes a partner.
   //
   // There MUST NOT be any current or upcoming bookings for any hotel registered
-  // to this partner.
+  // under this partner.
+  // TODO: this would be a cyclic dependency... since booking would depend on search
   rpc DeletePartner(DeletePartnerRequest) returns (google.protobuf.Empty) {}
 
   // ==========================================================

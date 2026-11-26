@@ -1,6 +1,7 @@
 package com.github.wkh131.hotelbooking.listing.v1;
 
 import com.github.wkh131.hotelbooking.listing.model.hotel.HotelDao;
+import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,24 +16,26 @@ public class HotelServiceGrpc {
         this.hotelDao = hotelDao;
     }
 
-
-    public Hotel getHotel(GetHotelRequest request) {
+    public void getHotel(GetHotelRequest request, StreamObserver<Hotel> responseObserver) {
         String[] ids = request.getName().split("/");
-        com.github.wkh131.hotelbooking.listing.model.hotel.Hotel hotel = hotelDao.getHotel(ids[ids.length - 1]);
-        return Hotel.newBuilder().build();
+//        com.github.wkh131.hotelbooking.listing.model.hotel.Hotel hotel = hotelDao.findHotel(
+//                ids[ids.length - 1]);
+        Hotel.newBuilder().build();
     }
 
-    public void createHotel(CreateHotelRequest request) {
+    public void createHotel(CreateHotelRequest request, StreamObserver<Hotel> responseObserver) {
 
     }
 
-    public void updateHotel(UpdateHotelRequest request) {
+    public void updateHotel(UpdateHotelRequest request, StreamObserver<Hotel> responseObserver) {
     }
 
-    public void deleteHotel(DeleteHotelRequest request) {
+    public void deleteHotel(DeleteHotelRequest request,
+                            StreamObserver<com.google.protobuf.Empty> responseObserver) {
     }
 
-    public void searchHotels(SearchHotelsRequest request) {
+    public void searchHotels(SearchHotelsRequest request,
+                             StreamObserver<SearchHotelsResponse> responseObserver) {
 
     }
 }

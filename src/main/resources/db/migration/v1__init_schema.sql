@@ -1,7 +1,7 @@
-create table partner
+create table partners
 (
     partner_id     bigint primary key generated always as identity,
-    name           text unique not null,
+    resource_name  varchar(2048) not null unique,
     title          varchar(100), -- official title
     address_line   varchar(100), -- street address
     locality       varchar(100), -- city or town
@@ -12,11 +12,11 @@ create table partner
     email_address  varchar(100)
 );
 
-create table hotel
+create table hotels
 (
     hotel_id       bigint primary key generated always as identity,
-    name           text unique not null,
-    partner_id     bigint      not null references partner (partner_id),
+    resource_name  varchar(2048) not null unique,
+    partner_id     bigint        not null references partners (partner_id),
     title          varchar(100), -- official title
     address_line   varchar(100), -- street address
     locality       varchar(100), -- city or town
@@ -24,73 +24,84 @@ create table hotel
     country_code   char(2),      -- country code
     postal_code    varchar(20),  -- zip code
     phone_number   varchar(20),
+    email_address  varchar(100),
     latitude       float,        -- corrected latitude
     longitude      float,        -- corrected longitude
     rating         int
 );
 
-create table room_type
+create table room_types
 (
-    room_type_id bigint generated always as identity primary key,
-    hotel_id           bigint             not null references hotel (hotel_id),
-    type_name          varchar(64) unique not null,
-    type_description   varchar(256)
-)
-
-create table room_type_override
-(
-    room_type_override_id bigint generated always as identity primary key,
-    room_type_id           bigint             not null references room_type (room_type_id),
-    type_name          varchar(64) unique not null,
-    type_description   varchar(256)
-)
-
--- TODO Wasim: Fix
-create table visual_asset_type
-(
-    visual_asset_type_id bigint generated always as identity primary key,
-    asset_type           varchar(20) not null,
-    type_encoding        varchar(20) not null
+    room_type_id           bigint primary key generated always as identity,
+    resource_name          varchar(2048) not null unique,
+    hotel_id               bigint        not null references hotels (hotel_id),
+    display_name           varchar(100),
+    default_price_per_room float,
+    capacity_per_room      int,
+    total_rooms            int
 );
 
-create table visual_asset
+create table room_type_overrides
 (
-    visual_asset_id      bigint generated always as identity primary key,
-    hotel_id             bigint        not null references hotels (hotel_id),
-    visual_asset_type_id bigint        not null references visual_asset_type (visual_asset_type_id),
-    visual_asset_url     varchar(2048) not null
+    room_type_override_id bigint primary key generated always as identity,
+    resource_name         varchar(2048) not null unique,
+    room_type_id          bigint        not null references room_types (room_type_id),
+    start_date_inc        date          not null,
+    end_date_inc          date          not null,
+    price                 float,
+    num_rooms             int
 );
 
-create table amenity
+create table amenities
 (
-    amenity_id   bigint generated always as identity primary key,
-    amenity_name varchar(64) unique not null
+    amenity_id    bigint primary key generated always as identity,
+    resource_name varchar(2048) not null unique,
+    display_name  varchar(100)
 );
 
-create table hotel_amenity
+create table hotel_amenities
 (
-    hotel_amenity_id bigint generated always as identity primary key,
-    hotel_id         bigint references hotel (hotel_id),
-    amenity_id       bigint references amenity (amenity_id)
+    hotel_amenity_id bigint primary key generated always as identity,
+    hotel_id         bigint references hotels (hotel_id),
+    amenity_id       bigint references amenities (amenity_id)
 );
 
-create table policy_type
+create table visual_asset_types
 (
-    policy_type_id   bigint generated always as identity primary key,
-    policy_type_name varchar(256) unique not null
+    visual_asset_type_id bigint primary key generated always as identity,
+    type                 varchar(10)  not null, -- short id
+    encoding             varchar(100) not null
 );
 
-create table policy_type_option
+create table visual_assets
 (
-    policy_type_option_id bigint generated always as identity primary key,
-    policy_type_id        bigint       not null references policy_type (policy_type_id),
-    option_value          varchar(128) not null
+    visual_asset_id bigint primary key generated always as identity,
+    resource_name   varchar(2048) not null unique,
+    hotel_id        bigint        not null references hotels (hotel_id),
+    type_id         bigint        not null references visual_asset_types (visual_asset_type_id),
+    url             varchar(2048) not null -- where to locate the data
 );
 
-create table hotel_policy
+-- type of policy
+create table policy_types
 (
-    hotel_policy_id   bigint generated always as identity primary key,
-    hotel_id          bigint not null references hotel (hotel_id),
-    policy_type_id    bigint not null references policy_type (policy_type_id),
-    custom_desciption varchar(1024) -- TODO Wasim: What size?
+    policy_type_id bigint primary key generated always as identity,
+    resource_name  varchar(2048) not null unique,
+    display_name   varchar(100)
+);
+
+-- zero or more options for each policy type
+create table policy_type_options
+(
+    policy_type_option_id bigint primary key generated always as identity,
+    policy_type_id        bigint       not null references policy_types (policy_type_id),
+    display_name          varchar(100) not null
+);
+
+create table hotel_policies
+(
+    hotel_policy_id bigint primary key generated always as identity,
+    hotel_id        bigint not null references hotels (hotel_id),
+    policy_type_id  bigint not null references policy_types (policy_type_id),
+    description     text
 );

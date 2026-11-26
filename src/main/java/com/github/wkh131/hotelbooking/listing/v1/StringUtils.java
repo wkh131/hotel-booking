@@ -5,6 +5,11 @@ package com.github.wkh131.hotelbooking.listing.v1;
  */
 public class StringUtils {
 
+    private static final int MIN_ID_LENGTH_INC = 4;
+    private static final int MAX_ID_LENGTH_INC = 63;
+
+    private static final int MAX_LENGTH_RESOURCE_NAME = 2048;
+
     /**
      * Validates that the id string conforms to RFC-1034 DNS labels
      * and has no upper case letters.
@@ -15,7 +20,7 @@ public class StringUtils {
      */
     public static boolean isIdValid(String id) {
         int n = id.length();
-        if (n < 4 || n > 63) return false;
+        if (n < MIN_ID_LENGTH_INC || n > MAX_ID_LENGTH_INC) return false;
         if (!Character.isLowerCase(id.charAt(0))) return false;
         if (!Character.isLowerCase(id.charAt(n - 1))) return false;
         for (int i = 1; i < n - 1; i++) {
@@ -25,5 +30,9 @@ public class StringUtils {
             }
         }
         return true;
+    }
+
+    public static boolean isNameValid(String name) {
+        return !name.isEmpty() && name.length() < MAX_LENGTH_RESOURCE_NAME;
     }
 }

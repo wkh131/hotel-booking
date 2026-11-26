@@ -1,6 +1,6 @@
 package com.github.wkh131.hotelbooking.listing.v1;
 
-import com.github.wkh131.hotelbooking.listing.model.roomtype.override.RoomTypeOverrideDao;
+import com.github.wkh131.hotelbooking.listing.model.room.override.RoomTypeOverrideDao;
 import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

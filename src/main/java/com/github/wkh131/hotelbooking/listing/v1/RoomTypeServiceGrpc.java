@@ -1,6 +1,6 @@
 package com.github.wkh131.hotelbooking.listing.v1;
 
-import com.github.wkh131.hotelbooking.listing.model.roomtype.RoomTypeDao;
+import com.github.wkh131.hotelbooking.listing.model.room.type.RoomTypeDao;
 import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,9 +16,11 @@ public class RoomTypeServiceGrpc {
         this.roomTypeDao = roomTypeDao;
     }
 
+    public void getRoomType(GetRoomTypeRequest request, StreamObserver<RoomType> responseObserver) {
+    }
+
     public void listRoomTypes(ListRoomTypesRequest request,
                               StreamObserver<ListRoomTypesResponse> responseObserver) {
-
     }
 
     public void createRoomType(CreateRoomTypeRequest request,
