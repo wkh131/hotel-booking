@@ -14,7 +14,7 @@ public class TimingUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(TimingUtils.class);
 
     /**
-     * Executes and times the specified task, logging (at INFO) the time using the given format.
+     * Executes and times the input task, logging (at INFO) the time using the given format.
      * @param task the task to execute.
      * @param format the format of the timing message, using the Logging format, and expecting to
      *              contain a single placeholder {} for the timing result in milliseconds.

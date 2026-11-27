@@ -1,12 +1,10 @@
 package com.github.wkh131.hotelbooking.listing.model.partner;
 
-import com.github.wkh131.hotelbooking.listing.model.contact.EmailAddress;
-import com.github.wkh131.hotelbooking.listing.model.contact.Location;
-import com.github.wkh131.hotelbooking.listing.model.contact.PhoneNumber;
+import com.github.wkh131.hotelbooking.listing.model.contact.AddressLocation;
+import com.github.wkh131.hotelbooking.listing.model.contact.Contact;
 
 public record Partner(String resourceName,
                       String title,
-                      Location location,
-                      PhoneNumber phoneNumber,
-                      EmailAddress emailAddress) {
+                      AddressLocation location,
+                      Contact contact) {
 }

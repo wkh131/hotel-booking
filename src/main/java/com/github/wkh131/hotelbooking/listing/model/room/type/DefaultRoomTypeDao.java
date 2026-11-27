@@ -1,7 +1,9 @@
 package com.github.wkh131.hotelbooking.listing.model.room.type;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.util.Optional;
 
 /**
@@ -9,6 +11,11 @@ import java.util.Optional;
  */
 @Repository
 public class DefaultRoomTypeDao implements RoomTypeDao {
+
+    @Autowired
+    public DefaultRoomTypeDao(final DataSource dataSource) {
+        
+    }
 
     @Override
     public Optional<RoomType> findRoomType(String id) {

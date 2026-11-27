@@ -1,6 +1,6 @@
 create table partners
 (
-    partner_id     bigint primary key generated always as identity,
+    partner_id     bigint generated always as identity primary key,
     resource_name  varchar(2048) not null unique,
     title          varchar(100), -- official title
     address_line   varchar(100), -- street address
@@ -14,7 +14,9 @@ create table partners
 
 create table hotels
 (
-    hotel_id       bigint primary key generated always as identity,
+    hotel_id       bigint generated always as identity primary key,
+    -- use hash table index for resource names? needed or overkill?
+    -- do we need range queries? like partners/tes%? not really
     resource_name  varchar(2048) not null unique,
     partner_id     bigint        not null references partners (partner_id),
     title          varchar(100), -- official title
@@ -25,14 +27,15 @@ create table hotels
     postal_code    varchar(20),  -- zip code
     phone_number   varchar(20),
     email_address  varchar(100),
-    latitude       float,        -- corrected latitude
-    longitude      float,        -- corrected longitude
-    rating         int
+    latitude       float,        -- user-corrected latitude
+    longitude      float,        -- user-corrected longitude
+    rating_value   float,
+    rating_out_of  float
 );
 
 create table room_types
 (
-    room_type_id           bigint primary key generated always as identity,
+    room_type_id           bigint generated always as identity primary key,
     resource_name          varchar(2048) not null unique,
     hotel_id               bigint        not null references hotels (hotel_id),
     display_name           varchar(100),
@@ -43,7 +46,7 @@ create table room_types
 
 create table room_type_overrides
 (
-    room_type_override_id bigint primary key generated always as identity,
+    room_type_override_id bigint generated always as identity primary key,
     resource_name         varchar(2048) not null unique,
     room_type_id          bigint        not null references room_types (room_type_id),
     start_date_inc        date          not null,
@@ -54,28 +57,28 @@ create table room_type_overrides
 
 create table amenities
 (
-    amenity_id    bigint primary key generated always as identity,
+    amenity_id    bigint generated always as identity primary key,
     resource_name varchar(2048) not null unique,
     display_name  varchar(100)
 );
 
 create table hotel_amenities
 (
-    hotel_amenity_id bigint primary key generated always as identity,
+    hotel_amenity_id bigint generated always as identity primary key,
     hotel_id         bigint references hotels (hotel_id),
     amenity_id       bigint references amenities (amenity_id)
 );
 
 create table visual_asset_types
 (
-    visual_asset_type_id bigint primary key generated always as identity,
+    visual_asset_type_id bigint generated always as identity primary key,
     type                 varchar(10)  not null, -- short id
     encoding             varchar(100) not null
 );
 
 create table visual_assets
 (
-    visual_asset_id bigint primary key generated always as identity,
+    visual_asset_id bigint generated always as identity primary key,
     resource_name   varchar(2048) not null unique,
     hotel_id        bigint        not null references hotels (hotel_id),
     type_id         bigint        not null references visual_asset_types (visual_asset_type_id),
@@ -85,7 +88,7 @@ create table visual_assets
 -- type of policy
 create table policy_types
 (
-    policy_type_id bigint primary key generated always as identity,
+    policy_type_id bigint generated always as identity primary key,
     resource_name  varchar(2048) not null unique,
     display_name   varchar(100)
 );
@@ -93,14 +96,14 @@ create table policy_types
 -- zero or more options for each policy type
 create table policy_type_options
 (
-    policy_type_option_id bigint primary key generated always as identity,
+    policy_type_option_id bigint generated always as identity primary key,
     policy_type_id        bigint       not null references policy_types (policy_type_id),
     display_name          varchar(100) not null
 );
 
 create table hotel_policies
 (
-    hotel_policy_id bigint primary key generated always as identity,
+    hotel_policy_id bigint generated always as identity primary key,
     hotel_id        bigint not null references hotels (hotel_id),
     policy_type_id  bigint not null references policy_types (policy_type_id),
     description     text

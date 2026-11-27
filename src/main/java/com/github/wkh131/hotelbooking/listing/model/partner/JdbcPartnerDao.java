@@ -1,8 +1,7 @@
 package com.github.wkh131.hotelbooking.listing.model.partner;
 
-import com.github.wkh131.hotelbooking.listing.model.contact.EmailAddress;
-import com.github.wkh131.hotelbooking.listing.model.contact.Location;
-import com.github.wkh131.hotelbooking.listing.model.contact.PhoneNumber;
+import com.github.wkh131.hotelbooking.listing.model.contact.AddressLocation;
+import com.github.wkh131.hotelbooking.listing.model.contact.Contact;
 import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -24,52 +23,6 @@ public class JdbcPartnerDao implements PartnerDao {
 
     private static final String SQL_UNIQUE_VIOLATION = "23505";
 
-    private static final String SQL_GET_PARTNER = """
-            select resource_name,
-                   title,
-                   address_line,
-                   locality,
-                   state_province,
-                   country_code,
-                   postal_code,
-                   phone_number,
-                   email_address
-            from partners
-            where partners.resource_name = ?
-            """;
-
-    private static final String SQL_CREATE_PARTNER = """
-            INSERT into partners (resource_name,
-                                  title,
-                                  address_line,
-                                  locality,
-                                  state_province,
-                                  country_code,
-                                  postal_code,
-                                  phone_number,
-                                  email_address
-            )
-            VALUES (?,?,?,?,?,?.?,?,?,?)
-            """;
-
-    private static final String SQL_UPDATE_PARTNER = """
-            UPDATE partners
-            SET title = ?,
-                address_line = ?,
-                locality = ?,
-                state_province = ?,
-                country_code = ?,
-                postal_code = ?,
-                phone_number = ?,
-                email_address = ?
-            WHERE resource_name = ?
-            """;
-
-    private static final String SQL_DELETE_PARTNER = """
-            DELETE from partners
-            WHERE resource_name = ?
-            """;
-
     private final DataSource dataSource;
 
     @Autowired
@@ -79,25 +32,35 @@ public class JdbcPartnerDao implements PartnerDao {
 
     @Override
     public Optional<Partner> findPartner(String id) {
+        String sqlGetPartner = """
+                select title,
+                       address_line,
+                       locality,
+                       state_province,
+                       country_code,
+                       postal_code,
+                       phone_number,
+                       email_address
+                from partners
+                where partners.resource_name = ?
+                """;
         try (Connection conn = dataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(SQL_GET_PARTNER)) {
+             PreparedStatement pstmt = conn.prepareStatement(sqlGetPartner)) {
             pstmt.setString(1, id);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                rs.moveToInsertRow();
-                String resourceName = rs.getString("resource_name");
                 String title = rs.getString("title");
                 String addressLine = rs.getString("address_line");
                 String locality = rs.getString("locality");
                 String stateProvince = rs.getString("state_province");
                 String countryCode = rs.getString("country_code");
                 String postalCode = rs.getString("postal_code");
-                Location location = new Location(addressLine, locality, stateProvince, countryCode,
-                                                 postalCode);
-                PhoneNumber phoneNumber = new PhoneNumber(rs.getString("phone_number"));
-                EmailAddress emailAddress = new EmailAddress(rs.getString("email_address"));
-                return Optional.of(
-                        new Partner(resourceName, title, location, phoneNumber, emailAddress));
+                String phoneNumber = rs.getString("phone_number");
+                String emailAddress = rs.getString("email_address");
+                AddressLocation location = new AddressLocation(addressLine, locality, stateProvince,
+                        countryCode, postalCode);
+                Contact contact = new Contact(phoneNumber, emailAddress);
+                return Optional.of(new Partner(id, title, location, contact));
             } else {
                 return Optional.empty();
             }
@@ -116,24 +79,27 @@ public class JdbcPartnerDao implements PartnerDao {
     // HAPPEN HERE RIGHT SINCE THIS IS A PURE WRITE. DON'T KNOW ENOUGH SO ASSUME IT CAN.
     @Override
     public boolean createPartner(Partner partner) {
+        String sqlCreatePartner = """
+                insert into partners (resource_name,
+                                      title,
+                                      address_line,
+                                      locality,
+                                      state_province,
+                                      country_code,
+                                      postal_code,
+                                      phone_number,
+                                      email_address)
+                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """;
         try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(SQL_CREATE_PARTNER)) {
-            int i = 1;
-            ps.setString(i++, partner.resourceName());
-            ps.setString(i++, partner.title());
-            ps.setString(i++, partner.location().addressLine());
-            ps.setString(i++, partner.location().locality());
-            ps.setString(i++, partner.location().stateProvince());
-            ps.setString(i++, partner.location().countryCode());
-            ps.setString(i++, partner.location().postalCode());
-            ps.setString(i++, partner.phoneNumber().number());
-            ps.setString(i++, partner.emailAddress().email());
-            int count = ps.executeUpdate();
+             PreparedStatement ps = conn.prepareStatement(sqlCreatePartner)) {
+            int count = setParamsAndExecute(partner, ps);
             Preconditions.checkState(count == 1, "expected to create exactly one partner");
             return true;
         } catch (SQLException e) {
             if (e instanceof SQLTransientException) {
                 // retry????
+                // currently throws runtimeException
             }
             // if duplicate key then return false
             if (e.getSQLState().equals(SQL_UNIQUE_VIOLATION)) {
@@ -146,18 +112,21 @@ public class JdbcPartnerDao implements PartnerDao {
     // SAME THING AS CREATE, NO SIDE EFFECTS AT THE MOMENT
     @Override
     public boolean updatePartner(Partner partner) {
+        final String sqlUpdatePartner = """
+                update partners
+                set title          = ?,
+                    address_line   = ?,
+                    locality       = ?,
+                    state_province = ?,
+                    country_code   = ?,
+                    postal_code    = ?,
+                    phone_number   = ?,
+                    email_address  = ?
+                where resource_name = ?
+                """;
         try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(SQL_UPDATE_PARTNER)) {
-            int i = 1;
-            ps.setString(i++, partner.resourceName());
-            ps.setString(i++, partner.title());
-            ps.setString(i++, partner.location().addressLine());
-            ps.setString(i++, partner.location().locality());
-            ps.setString(i++, partner.location().stateProvince());
-            ps.setString(i++, partner.location().countryCode());
-            ps.setString(i++, partner.location().postalCode());
-            ps.setString(i++, partner.phoneNumber().number());
-            int count = ps.executeUpdate();
+             PreparedStatement ps = conn.prepareStatement(sqlUpdatePartner)) {
+            int count = setParamsAndExecute(partner, ps);
             return switch (count) {
                 case 0 -> false;
                 case 1 -> true;
@@ -171,8 +140,13 @@ public class JdbcPartnerDao implements PartnerDao {
     // SAME THING AS DELETE, NO SIDE EFFECTS AT THE MOMENT
     @Override
     public boolean deletePartner(String id) {
+        String sqlDeletePartner = """
+                delete
+                from partners
+                where resource_name = ?
+                """;
         try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(SQL_DELETE_PARTNER)) {
+             PreparedStatement ps = conn.prepareStatement(sqlDeletePartner)) {
             ps.setString(1, id);
             int count = ps.executeUpdate();
             return switch (count) {
@@ -183,5 +157,19 @@ public class JdbcPartnerDao implements PartnerDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private int setParamsAndExecute(Partner partner, PreparedStatement ps) throws SQLException {
+        int i = 1;
+        ps.setString(i++, partner.resourceName());
+        ps.setString(i++, partner.title());
+        ps.setString(i++, partner.location().addressLine());
+        ps.setString(i++, partner.location().locality());
+        ps.setString(i++, partner.location().stateProvince());
+        ps.setString(i++, partner.location().countryCode());
+        ps.setString(i++, partner.location().postalCode());
+        ps.setString(i++, partner.contact().phoneNumber());
+        ps.setString(i++, partner.contact().emailAddress());
+        return ps.executeUpdate();
     }
 }

@@ -1,5 +1,7 @@
 package com.github.wkh131.hotelbooking.listing.model.partner;
 
+import com.github.wkh131.hotelbooking.listing.v1.common.ResourceDao;
+
 import java.util.Optional;
 
 /**
@@ -20,7 +22,7 @@ import java.util.Optional;
  *              Server retries when transaction rollback occurs. when can server vs client fix?
  *                      probably client needs to fix because premise changed?
  */
-public interface PartnerDao {
+public interface PartnerDao extends ResourceDao<Partner> {
 
     /**
      * Finds a Partner by ID.

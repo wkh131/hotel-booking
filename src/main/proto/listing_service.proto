@@ -330,7 +330,7 @@ message Photo {
 message HotelRating {
   option (google.api.resource) = {
     type: "listing.hotelbooking.wkh131.github.com/HotelRating"
-    pattern: "partners/{partner}/hotels/{hotel}/rating"
+    pattern: "partners/{partner}/hotels/{hotel}/value"
   };
 
   // The resource name of the rating for a hotel.

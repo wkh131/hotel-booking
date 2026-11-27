@@ -1,6 +1,6 @@
 package com.github.wkh131.hotelbooking.listing.v1;
 
-import io.grpc.Status;
+import com.github.wkh131.hotelbooking.listing.v1.partner.PartnerServiceGrpc;
 import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.grpc.server.service.GrpcService;
@@ -48,25 +48,16 @@ public class ListingServiceGrpcImpl extends ListingServiceGrpc.ListingServiceImp
 
     @Override
     public void getPartner(GetPartnerRequest request, StreamObserver<Partner> responseObserver) {
-        // TODO: context? what
-        // throw new RuntimeException("oh no");
-        responseObserver.onError(
-                Status.INVALID_ARGUMENT.withDescription("what happened").asRuntimeException());
-        // Context.current().isCancelled();
-        //        responseObserver.onNext(Partner.newBuilder().setName("myName").build());
-        //        responseObserver.onCompleted();
-        // partnerService.getPartner(request, responseObserver);
+        partnerService.getPartner(request, responseObserver);
     }
 
     @Override
-    public void createPartner(CreatePartnerRequest request,
-                              StreamObserver<Partner> responseObserver) {
+    public void createPartner(CreatePartnerRequest request, StreamObserver<Partner> responseObserver) {
         partnerService.createPartner(request, responseObserver);
     }
 
     @Override
-    public void updatePartner(UpdatePartnerRequest request,
-                              StreamObserver<Partner> responseObserver) {
+    public void updatePartner(UpdatePartnerRequest request, StreamObserver<Partner> responseObserver) {
         partnerService.updatePartner(request, responseObserver);
     }
 
@@ -115,14 +106,12 @@ public class ListingServiceGrpcImpl extends ListingServiceGrpc.ListingServiceImp
     }
 
     @Override
-    public void createRoomType(CreateRoomTypeRequest request,
-                               StreamObserver<RoomType> responseObserver) {
+    public void createRoomType(CreateRoomTypeRequest request, StreamObserver<RoomType> responseObserver) {
         roomTypeService.createRoomType(request, responseObserver);
     }
 
     @Override
-    public void updateRoomType(UpdateRoomTypeRequest request,
-                               StreamObserver<RoomType> responseObserver) {
+    public void updateRoomType(UpdateRoomTypeRequest request, StreamObserver<RoomType> responseObserver) {
         roomTypeService.updateRoomType(request, responseObserver);
     }
 
@@ -174,14 +163,12 @@ public class ListingServiceGrpcImpl extends ListingServiceGrpc.ListingServiceImp
     }
 
     @Override
-    public void createAmenity(CreateAmenityRequest request,
-                              StreamObserver<Amenity> responseObserver) {
+    public void createAmenity(CreateAmenityRequest request, StreamObserver<Amenity> responseObserver) {
         amenityService.createAmenity(request, responseObserver);
     }
 
     @Override
-    public void updateAmenity(UpdateAmenityRequest request,
-                              StreamObserver<Amenity> responseObserver) {
+    public void updateAmenity(UpdateAmenityRequest request, StreamObserver<Amenity> responseObserver) {
         amenityService.updateAmenity(request, responseObserver);
     }
 
@@ -197,8 +184,7 @@ public class ListingServiceGrpcImpl extends ListingServiceGrpc.ListingServiceImp
     }
 
     @Override
-    public void listPhotos(ListPhotosRequest request,
-                           StreamObserver<ListPhotosResponse> responseObserver) {
+    public void listPhotos(ListPhotosRequest request, StreamObserver<ListPhotosResponse> responseObserver) {
         photoService.listPhotos(request, responseObserver);
     }
 
@@ -219,8 +205,7 @@ public class ListingServiceGrpcImpl extends ListingServiceGrpc.ListingServiceImp
     }
 
     @Override
-    public void getPolicyType(GetPolicyTypeRequest request,
-                              StreamObserver<PolicyType> responseObserver) {
+    public void getPolicyType(GetPolicyTypeRequest request, StreamObserver<PolicyType> responseObserver) {
         policyTypeService.getPolicyType(request, responseObserver);
     }
 
@@ -249,8 +234,7 @@ public class ListingServiceGrpcImpl extends ListingServiceGrpc.ListingServiceImp
     }
 
     @Override
-    public void getHotelPolicy(GetHotelPolicyRequest request,
-                               StreamObserver<HotelPolicy> responseObserver) {
+    public void getHotelPolicy(GetHotelPolicyRequest request, StreamObserver<HotelPolicy> responseObserver) {
         hotelPolicyService.getHotelPolicy(request, responseObserver);
     }
 
