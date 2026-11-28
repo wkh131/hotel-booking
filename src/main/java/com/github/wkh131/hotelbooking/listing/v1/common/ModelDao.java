@@ -1,14 +1,12 @@
 package com.github.wkh131.hotelbooking.listing.v1.common;
 
-import com.github.wkh131.hotelbooking.listing.model.hotel.Hotel;
-
 import java.util.Optional;
 
 /**
- * Data Access Object for {@link Hotel}.
+ * Data Access Object.
  * TODO: update docs
  */
-public interface ResourceDao<M> {
+public interface ModelDao<M> {
 
     /**
      * Finds a resource by ID.

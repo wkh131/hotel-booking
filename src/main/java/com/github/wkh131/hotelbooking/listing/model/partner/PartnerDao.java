@@ -1,6 +1,6 @@
 package com.github.wkh131.hotelbooking.listing.model.partner;
 
-import com.github.wkh131.hotelbooking.listing.v1.common.ResourceDao;
+import com.github.wkh131.hotelbooking.listing.v1.common.ModelDao;
 
 import java.util.Optional;
 
@@ -22,7 +22,7 @@ import java.util.Optional;
  *              Server retries when transaction rollback occurs. when can server vs client fix?
  *                      probably client needs to fix because premise changed?
  */
-public interface PartnerDao extends ResourceDao<Partner> {
+public interface PartnerDao extends ModelDao<Partner> {
 
     /**
      * Finds a Partner by ID.
@@ -30,7 +30,7 @@ public interface PartnerDao extends ResourceDao<Partner> {
      * @param id the ID of the Partner.
      * @return an optional containing the Partner, if found, otherwise empty.
      */
-    Optional<Partner> findPartner(String id);
+    Optional<Partner> get(String id);
 
     /**
      * Creates a Partner.
@@ -39,7 +39,7 @@ public interface PartnerDao extends ResourceDao<Partner> {
      * @return true if the partner didn't already exist and was created successfully, otherwise
      * false.
      */
-    boolean createPartner(Partner partner);
+    boolean create(Partner partner);
 
     /**
      * Updates a Partner.
@@ -47,7 +47,7 @@ public interface PartnerDao extends ResourceDao<Partner> {
      * @param partner the value of the Partner to update to.
      * @return true if the partner already existed and was updated successfully, otherwise false.
      */
-    boolean updatePartner(Partner partner);
+    boolean update(Partner partner);
 
     /**
      * Deletes a Partner.
@@ -55,6 +55,6 @@ public interface PartnerDao extends ResourceDao<Partner> {
      * @param id the id of the Partner to delete.
      * @return true if the partner already existed and was deleted successfully, otherwise false.
      */
-    boolean deletePartner(String id);
+    boolean delete(String id);
 
 }

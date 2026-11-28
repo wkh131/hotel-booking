@@ -2,6 +2,7 @@ package com.github.wkh131.hotelbooking.listing.model.partner;
 
 import com.github.wkh131.hotelbooking.listing.model.contact.AddressLocation;
 import com.github.wkh131.hotelbooking.listing.model.contact.Contact;
+import com.github.wkh131.hotelbooking.listing.v1.common.ModelDao;
 import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -19,7 +20,7 @@ import java.util.Optional;
  * RETRY LOGIC FOR DAOS DUE TO TRANSIENT SQL EXCEPTIONS SHOULD BE DONE IN THE SERVICE LAYER.
  */
 @Repository
-public class JdbcPartnerDao implements PartnerDao {
+public class JdbcPartnerDao implements ModelDao<Partner> {
 
     private static final String SQL_UNIQUE_VIOLATION = "23505";
 
@@ -31,7 +32,7 @@ public class JdbcPartnerDao implements PartnerDao {
     }
 
     @Override
-    public Optional<Partner> findPartner(String id) {
+    public Optional<Partner> get(String id) {
         String sqlGetPartner = """
                 select title,
                        address_line,
@@ -78,7 +79,7 @@ public class JdbcPartnerDao implements PartnerDao {
     // HOW DO WE DIFFERENTIATE BETWEEN DUPLICATE KEY AND TRANSACTION ROLLBACK? ROLLBACK CANT
     // HAPPEN HERE RIGHT SINCE THIS IS A PURE WRITE. DON'T KNOW ENOUGH SO ASSUME IT CAN.
     @Override
-    public boolean createPartner(Partner partner) {
+    public boolean create(Partner partner) {
         String sqlCreatePartner = """
                 insert into partners (resource_name,
                                       title,
@@ -111,7 +112,7 @@ public class JdbcPartnerDao implements PartnerDao {
 
     // SAME THING AS CREATE, NO SIDE EFFECTS AT THE MOMENT
     @Override
-    public boolean updatePartner(Partner partner) {
+    public boolean update(Partner partner) {
         final String sqlUpdatePartner = """
                 update partners
                 set title          = ?,
@@ -139,7 +140,7 @@ public class JdbcPartnerDao implements PartnerDao {
 
     // SAME THING AS DELETE, NO SIDE EFFECTS AT THE MOMENT
     @Override
-    public boolean deletePartner(String id) {
+    public boolean delete(String id) {
         String sqlDeletePartner = """
                 delete
                 from partners

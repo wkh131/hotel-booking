@@ -1,38 +1,41 @@
-package com.github.wkh131.hotelbooking.listing.v1.common.crud.get;
+package com.github.wkh131.hotelbooking.listing.v1.common.get;
 
 import com.github.wkh131.hotelbooking.listing.model.authz.Action;
 import com.github.wkh131.hotelbooking.listing.model.authz.AuthorizationService;
 import com.github.wkh131.hotelbooking.listing.v1.StringUtils;
+import com.github.wkh131.hotelbooking.listing.v1.common.ModelDao;
 import com.github.wkh131.hotelbooking.listing.v1.common.ProtoMapper;
-import com.github.wkh131.hotelbooking.listing.v1.common.ResourceDao;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 
-public class BaseGetResourceService<T, R, Req extends GetRequest> implements GetResourceService<R, Req> {
+import static com.github.wkh131.hotelbooking.listing.v1.GrpcServiceUtils.nameMaxLengthErrorMsg;
+import static com.github.wkh131.hotelbooking.listing.v1.GrpcServiceUtils.topNameMissingErrorMsg;
+
+public class DefaultGetResourceService<M, R> implements GetResourceService<R> {
 
     private final AuthorizationService authorizationService;
 
-    private final ResourceDao<T> resourceDao;
+    private final ModelDao<M> resourceDao;
 
-    private final ProtoMapper<T, R> protoMapper;
+    private final ProtoMapper<M, R> protoMapper;
 
-    public BaseGetResourceService(final AuthorizationService authorizationService,
-                                  final ResourceDao<T> resourceDao,
-                                  final ProtoMapper<T, R> protoMapper) {
+    public DefaultGetResourceService(final AuthorizationService authorizationService,
+                                     final ModelDao<M> resourceDao,
+                                     final ProtoMapper<M, R> protoMapper) {
         this.authorizationService = authorizationService;
         this.resourceDao = resourceDao;
         this.protoMapper = protoMapper;
     }
 
     @Override
-    public void get(Req request, StreamObserver<R> responseObserver) {
+    public void get(GetRequest request, StreamObserver<R> responseObserver) {
         final String resourceName = request.getName();
         if (resourceName.isEmpty()) {
             responseObserver.onError(
-                    Status.INVALID_ARGUMENT.withDescription("name field is required").asRuntimeException());
+                    Status.INVALID_ARGUMENT.withDescription(topNameMissingErrorMsg()).asRuntimeException());
         } else if (resourceName.length() > StringUtils.MAX_LENGTH_RESOURCE_NAME) {
-            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription(
-                    "name field max length is " + StringUtils.MAX_LENGTH_RESOURCE_NAME).asRuntimeException());
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription(nameMaxLengthErrorMsg("name"))
+                                                            .asRuntimeException());
         } else if (!authorizationService.isAuthorized(Action.READ, resourceName)) {
             responseObserver.onError(Status.PERMISSION_DENIED.asRuntimeException());
         } else {

@@ -1,6 +1,5 @@
 package com.github.wkh131.hotelbooking.listing.v1;
 
-import com.github.wkh131.hotelbooking.listing.v1.partner.PartnerServiceGrpc;
 import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.grpc.server.service.GrpcService;

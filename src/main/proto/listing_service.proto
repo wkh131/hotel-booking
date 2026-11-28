@@ -197,6 +197,9 @@ message Partner {
 
   // The phone number of the partner.
   google.type.PhoneNumber phone_number = 4;
+
+  // The email address of the partner;
+  string email_address = 5;
 }
 
 // A property that is owned and listed by a partner.

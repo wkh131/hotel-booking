@@ -3,6 +3,7 @@ package com.github.wkh131.hotelbooking.listing.model.hotel;
 import com.github.wkh131.hotelbooking.listing.model.contact.AddressLocation;
 import com.github.wkh131.hotelbooking.listing.model.contact.Contact;
 import com.github.wkh131.hotelbooking.listing.model.contact.GeoLocation;
+import com.github.wkh131.hotelbooking.listing.v1.common.ModelDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,7 +16,7 @@ import java.util.Optional;
  * Spring-JDBC implementation of {@link HotelDao}.
  */
 @Repository
-public class SpringJdbcHotelDao implements HotelDao {
+public class SpringJdbcHotelDao implements ModelDao<Hotel> {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -25,7 +26,7 @@ public class SpringJdbcHotelDao implements HotelDao {
     }
 
     @Override
-    public Optional<Hotel> findHotel(String id) {
+    public Optional<Hotel> get(String id) {
         final String sqlGetHotel = """
                 select partners.resource_name as partners_resource_name,
                        hotels.title,
@@ -61,15 +62,14 @@ public class SpringJdbcHotelDao implements HotelDao {
             float ratingOutOf = resultSet.getFloat("rating_out_of");
             Rating rating = new Rating(ratingValue, ratingOutOf);
             return new Hotel(id, partnerResourceName, title,
-                    new AddressLocation(addressLine, locality, countryCode, countryCode1,
-                            postalCode), new GeoLocation(latitude, longitude),
-                    new Contact(phoneNumber, emailAddress), rating);
+                    new AddressLocation(addressLine, locality, countryCode, countryCode1, postalCode),
+                    new GeoLocation(latitude, longitude), new Contact(phoneNumber, emailAddress), rating);
         }, id);
         return Optional.ofNullable(hotel);
     }
 
     @Override
-    public boolean createHotel(Hotel hotel) {
+    public boolean create(Hotel hotel) {
         final String sqlCreateHotel = """
                 with pval as (select partner_id
                               from partners
@@ -93,13 +93,12 @@ public class SpringJdbcHotelDao implements HotelDao {
                 from pval
                 """;
         try {
-            this.jdbcTemplate.update(sqlCreateHotel, hotel.partnerResourceName(),
-                    hotel.resourceName(), hotel.title(), hotel.address().addressLine(),
-                    hotel.address().locality(), hotel.address().stateProvince(),
-                    hotel.address().countryCode(), hotel.address().postalCode(),
-                    hotel.contact().phoneNumber(), hotel.contact().emailAddress(),
-                    hotel.geoLocation().latitude(), hotel.geoLocation().longitude(),
-                    hotel.rating().value(), hotel.rating().outOf());
+            this.jdbcTemplate.update(sqlCreateHotel, hotel.partnerResourceName(), hotel.resourceName(),
+                    hotel.title(), hotel.address().addressLine(), hotel.address().locality(),
+                    hotel.address().stateProvince(), hotel.address().countryCode(),
+                    hotel.address().postalCode(), hotel.contact().phoneNumber(),
+                    hotel.contact().emailAddress(), hotel.geoLocation().latitude(),
+                    hotel.geoLocation().longitude(), hotel.rating().value(), hotel.rating().outOf());
             return true;
         } catch (DuplicateKeyException e) {
             return false;
@@ -107,7 +106,7 @@ public class SpringJdbcHotelDao implements HotelDao {
     }
 
     @Override
-    public boolean updateHotel(Hotel hotel) {
+    public boolean update(Hotel hotel) {
         final String sqlUpdateHotel = """
                 update hotels
                 set title          = ?,
@@ -125,9 +124,8 @@ public class SpringJdbcHotelDao implements HotelDao {
                 where resource_name = ?
                 """;
         int updateCount = this.jdbcTemplate.update(sqlUpdateHotel, hotel.title(),
-                hotel.address().addressLine(), hotel.address().locality(),
-                hotel.address().stateProvince(), hotel.address().countryCode(),
-                hotel.address().postalCode(), hotel.contact().phoneNumber(),
+                hotel.address().addressLine(), hotel.address().locality(), hotel.address().stateProvince(),
+                hotel.address().countryCode(), hotel.address().postalCode(), hotel.contact().phoneNumber(),
                 hotel.contact().emailAddress(), hotel.geoLocation().latitude(),
                 hotel.geoLocation().longitude(), hotel.rating().value(), hotel.rating().outOf(),
                 hotel.resourceName());
@@ -135,7 +133,7 @@ public class SpringJdbcHotelDao implements HotelDao {
     }
 
     @Override
-    public boolean deleteHotel(String id) {
+    public boolean delete(String id) {
         final String sqlDeleteHotel = """
                 delete
                 from hotels
